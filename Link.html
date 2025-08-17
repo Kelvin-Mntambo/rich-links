@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Richfield Links</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#60a5fa;--muted:#94a3b8;--white:#e6eef8}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071029 0%, #081226 100%);color:var(--white);margin:0;padding:24px}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    header h1{margin:0;font-size:20px;letter-spacing:0.5px}
+    .subtitle{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+    .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(3,7,18,0.6)}
+    .sub-title{font-weight:600;margin:0 0 8px}
+    .meta{font-size:13px;color:var(--muted);margin-bottom:10px}
+    button{background:var(--accent);border:none;color:#04243b;padding:8px 10px;border-radius:8px;font-weight:600;cursor:pointer}
+    .center{display:flex;gap:8px;align-items:center}
+    .links-list{margin-top:12px}
+    .link-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:8px}
+    .link-item a{color:var(--white);text-decoration:none}
+    .muted{color:var(--muted);font-size:13px}
+    .back{margin-top:12px}
+    .prompt{display:flex;flex-direction:column;gap:8px}
+    input[type="password"], input[type="text"], input[type="url"], input[type="number"]{
+      padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--white)
+    }
+    footer{margin-top:26px;color:var(--muted);font-size:13px}
+    .small{font-size:12px;color:var(--muted)}
+    .add-form{margin-top:12px;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.03)}
+    .note{font-size:13px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+
+  <header>
+    <div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#04243b">RL</div>
+    <div>
+      <h1>Richfield Links</h1>
+      <div class="subtitle">Subject-based link vault </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section id="index-view">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="sub-title">Subjects</div>
+            <div class="meta">Click any subject and enter its numeric password to view links.</div>
+          </div>
+        
+        </div>
+
+        <div class="grid" id="subjects-grid"></div>
+
+       
+      </div>
+    </section>
+
+    <section id="subject-view" style="display:none">
+      <div class="card" id="subject-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="sub-title" id="subject-title">Subject Title</div>
+            <div class="meta" id="subject-meta">Meta</div>
+          </div>
+          <div class="center">
+            <button id="back-btn">Back</button>
+          </div>
+        </div>
+
+        <div id="protected-area" style="margin-top:12px"></div>
+      </div>
+    </section>
+
+    <section id="debug" style="margin-top:12px"></section>
+  </main>
+
+  <footer>
+   
+  </footer>
+
+<script>
+/*
+  Data definition:
+  - subjects: list of subjects (id, title, description, password (numeric), links[])
+  - For now passwords live here in-memory. Later you can load JSON file instead.
+*/
+const subjects = [
+  {
+    id: 'ipr-bsc-2',
+    title: 'IPR — BSC, Second Year',
+    descr: 'Intellectual Property Rights (BSC 2nd year)',
+    password: '1234',
+    links: [
+      {title: 'IPR Lecture notes - Week 1', url: 'https://example.com/ipr-week1'},
+      {title: 'Patent Law summary (pdf)', url: 'https://example.com/patents'}
+    ]
+  },
+  {
+    id: 'pro-bsc-2',
+    title: 'PRO — Programming (BSC, Second Year)',
+    descr: 'Programming fundamentals',
+    password: '2222',
+    links: [
+      {title: 'Intro to Programming — Slides', url: 'https://example.com/pro-slides'},
+      {title: 'Sample code repo', url: 'https://example.com/pro-repo'}
+    ]
+  },
+  {
+    id: 'csharp-bsc-3',
+    title: 'C# — BSC, Third Year',
+    descr: 'C Sharp programming (3rd year)',
+    password: '3333',
+    links: [
+      {title: 'C# OOP examples', url: 'https://example.com/csharp-oop'},
+      {title: 'LINQ cheatsheet', url: 'https://example.com/linq'}
+    ]
+  },
+  {
+    id: 'webtech-bsc-2',
+    title: 'WebTech — BSC, Second Year',
+    descr: 'Web technologies (BSC 2nd year)',
+    password: '4444',
+    links: [
+      {title: 'HTML & CSS guide', url: 'https://example.com/html-css'},
+      {title: 'JavaScript basics', url: 'https://example.com/js-basics'}
+    ]
+  },
+  {
+    id: 'webtech-bsc-1',
+    title: 'WebTech — BSC, First Year',
+    descr: 'Web technologies (BSC 1st year)',
+    password: '5555',
+    links: [
+      {title: 'Getting started with the web', url: 'https://example.com/start-web'}
+    ]
+  },
+  {
+    id: 'mobile-bsc-3',
+    title: 'Mobile App Dev — BSC, Third Year',
+    descr: 'Mobile development topics',
+    password: '6666',
+    links: [
+      {title: 'Android basics', url: 'https://example.com/android-basic'},
+      {title: 'Flutter intro', url: 'https://example.com/flutter-intro'}
+    ]
+  },
+  {
+    id: 'db-dit-2',
+    title: 'Database — DIT, Second Year',
+    descr: 'Database systems (DIT 2nd year)',
+    password: '7777',
+    links: [
+      {title: 'SQL reference', url: 'https://example.com/sql-ref'},
+      {title: 'Normalization notes', url: 'https://example.com/normalization'}
+    ]
+  },
+  {
+    id: 'webtech-dit-1',
+    title: 'WebTech — DIT, First Year',
+    descr: 'DIT web technologies (1st year)',
+    password: '8888',
+    links: [
+      {title: 'Basic web lab', url: 'https://example.com/web-lab'}
+    ]
+  }
+];
+
+// render subjects as cards
+const grid = document.getElementById('subjects-grid');
+subjects.forEach(s => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <div class="sub-title">${s.title}</div>
+    <div class="meta">${s.descr}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <div class="small muted">Protected</div>
+      <div><button data-id="${s.id}" class="open-sub">Open</button></div>
+    </div>
+  `;
+  grid.appendChild(div);
+});
+
+// views and elements
+const indexView = document.getElementById('index-view');
+const subjectView = document.getElementById('subject-view');
+const subjectTitle = document.getElementById('subject-title');
+const subjectMeta = document.getElementById('subject-meta');
+const protectedArea = document.getElementById('protected-area');
+const backBtn = document.getElementById('back-btn');
+
+let currentSubject = null;
+
+// click handlers for opening a subject
+document.addEventListener('click', (e)=>{
+  if(e.target.matches('.open-sub')){
+    const id = e.target.dataset.id;
+    openSubject(id);
+  } else if(e.target.matches('#back-btn')){
+    showIndex();
+  } else if(e.target.matches('.open-link')){
+    // nothing special - links are normal <a> tags
+  } else if(e.target.matches('#unlock-btn')){
+    attemptUnlock();
+  } else if(e.target.matches('#add-link-btn')){
+    addLink();
+  }
+});
+
+function openSubject(id){
+  currentSubject = subjects.find(s=>s.id===id);
+  if(!currentSubject) return alert('Subject not found');
+  subjectTitle.textContent = currentSubject.title;
+  subjectMeta.textContent = currentSubject.descr + ' — Password required';
+  indexView.style.display = 'none';
+  subjectView.style.display = 'block';
+  renderLockPrompt();
+}
+
+function showIndex(){
+  currentSubject = null;
+  protectedArea.innerHTML = '';
+  subjectView.style.display = 'none';
+  indexView.style.display = 'block';
+}
+
+// lock prompt UI (enter password)
+function renderLockPrompt(){
+  protectedArea.innerHTML = `
+    <div class="prompt">
+      <div class="muted">Enter password for this subject:</div>
+      <input id="pwd-input" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 1234" />
+      <div style="display:flex;gap:8px">
+        <button id="unlock-btn">Unlock</button>
+        <button onclick="showIndex()" style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--white)">Cancel</button>
+      </div>
+    
+    </div>
+  `;
+  document.getElementById('pwd-input').focus();
+}
+
+// attempt unlock
+function attemptUnlock(){
+  const input = document.getElementById('pwd-input');
+  if(!currentSubject) return;
+  const val = (input.value || '').trim();
+  if(val === '') return alert('Enter the numeric password');
+  if(val === currentSubject.password){
+    renderLinks();
+  } else {
+    alert('Wrong password — try again');
+    input.value = '';
+    input.focus();
+  }
+}
+
+// render subject links and a tiny "add link" form (optional)
+function renderLinks(){
+  protectedArea.innerHTML = ''; // clear
+  const list = document.createElement('div');
+  list.className = 'links-list';
+  if(currentSubject.links.length === 0){
+    list.innerHTML = '<div class="muted">No links yet for this subject.</div>';
+  } else {
+    currentSubject.links.forEach(l=>{
+      const item = document.createElement('div');
+      item.className = 'link-item';
+      item.innerHTML = `
+        <div>
+          <div style="font-weight:600"><a class="open-link" target="_blank" href="${escapeHtml(l.url)}">${escapeHtml(l.title)}</a></div>
+          <div class="muted" style="font-size:12px">${l.url}</div>
+        </div>
+        <div style="min-width:80px;text-align:right">
+          <a href="${escapeHtml(l.url)}" target="_blank"><button>Open</button></a>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  // add link form (note: this is local-only; it updates in-memory only)
+  const addForm = document.createElement('div');
+  addForm.className = 'add-form';
+  addForm.innerHTML = `
+ 
+   
+  `;
+
+  protectedArea.appendChild(list);
+  protectedArea.appendChild(addForm);
+}
+
+// adding a link to currentSubject (in-memory)
+function addLink(){
+  const t = document.getElementById('new-title').value.trim();
+  const u = document.getElementById('new-url').value.trim();
+  if(!t || !u) return alert('Provide title and URL');
+  // basic URL check
+  if(!/^https?:\/\//i.test(u)) return alert('URL should start with http:// or https://');
+  currentSubject.links.push({title:t, url:u});
+  document.getElementById('new-title').value='';
+  document.getElementById('new-url').value='';
+  renderLinks();
+  alert('Link added (in-memory). Save to file to make permanent.');
+}
+
+// simple escape for html attributes/text
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+
+// initial state: show subjects
+showIndex();
+
+</script>
+
+</body>
+</html>
